@@ -1,10 +1,11 @@
 <script setup>
+const runtimeConfig = useRuntimeConfig()
 const discord = useDiscordStore()
 const userGuilds = useGuildStore()
 let dGuilds = ref()
 
 if (discord.token) {
-    dGuilds = await $fetch(`https://localhost:7116/getguilds/${discord.token}`, {
+    dGuilds = await $fetch(`${runtimeConfig.apiBase}/getguilds/${discord.token}`, {
     method: 'GET',
     parseResponse: JSON.parse
   }).catch((error) => {
@@ -37,7 +38,6 @@ function getIcon(hash, guildId) {
       </div>
     </div>
     <div v-else>
-     <!-- <label>There are no guilds available!</label> -->
      <NuxtLoadingIndicator/> 
     </div>
 </template>

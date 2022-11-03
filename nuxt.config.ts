@@ -18,8 +18,8 @@ export default defineNuxtConfig({
         "clientId": process.env.CLIENT_ID,
         "clientSecret": process.env.CLIENT_SECRET,
         "redirectOauth": process.env.REDIRECT_OAUTH,
-        "botInvite": ""
-    
+        "botInvite": process.env.BOT_INVITE,
+        "apiBase": process.env.API_BASE
     },
     imports: {
         dirs: ['stores']
