@@ -16,7 +16,8 @@ else {
 }
 
 function getIcon(hash, guildId) {
-  return `https://cdn.discordapp.com/icons/${guildId}/${hash}.webp?size=2048`
+  return hash ? `https://cdn.discordapp.com/icons/${guildId}/${hash}.webp?size=2048` : 
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDANwJPVe_q50Zhr9E0E_S7sP0M8lA-gm0umXUTDX5&s"
 }
 
 </script>
