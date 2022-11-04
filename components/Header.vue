@@ -42,7 +42,7 @@ if (route.query.code) {
   }
 }
 
-async function logOut() {
+function logOut() {
   let cookie = useCookie('useDiscordStore')
   cookie.value = null
   window.location.reload()
@@ -113,7 +113,7 @@ async function logOut() {
             <label tabindex="0" class="btn m-1 normal-case">{{ discord.userName }}</label>
             <ul tabindex="0" class="dropdown-content menu p-2 right-2 shadow bg-base-200 rounded-box w-52">
               <li><a href="/dashboard">Dashboard</a></li>
-              <li><button class="text-red-500 btn" @click="async () => await logOut()">Logout</button></li>
+              <li><button class="text-red-500 btn" @click="logOut">Logout</button></li>
             </ul>
           </div>
         </ClientOnly>
