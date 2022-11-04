@@ -3,11 +3,6 @@ const runtimeConfig = useRuntimeConfig()
 const route = useRoute()
 const discord = useDiscordStore()
 
-let buttonName = ref('Login')
-let href = ref(runtimeConfig.redirectOauth)
-let pfp = ref('')
-let user = ref()
-
 if (route.query.code) {
   const params = new URLSearchParams({
     client_id: runtimeConfig.clientId,
@@ -16,8 +11,7 @@ if (route.query.code) {
     grant_type: 'authorization_code',
     redirect_uri: 'http://localhost:3000'
   })
-
-  const lol = await $fetch('https://discord.com/api/v10/oauth2/token', {
+  const tokenReq = await $fetch('https://discord.com/api/v10/oauth2/token', {
     method: 'POST',
     body: params,
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -26,27 +20,32 @@ if (route.query.code) {
     console.error(error.data)
   })
 
-  if (lol) {
-    discord.$patch({ refreshToken: lol.refresh_token, token: lol.access_token })
+  if (tokenReq) {
+    discord.$patch(
+      {
+        refreshToken: tokenReq.refresh_token,
+        token: tokenReq.access_token
+      })
+
+    const user = await $fetch('https://discord.com/api/v10/users/@me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${discord.token}`
+      },
+      parseResponse: JSON.parse
+    })
+
+    discord.$patch({ userName: `${user.username}#${user.discriminator}`, id: user.id})
+    if (user.avatar) discord.$patch({ pfp: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp` })
+
     await navigateTo('/')
   }
 }
-else if (discord.token) {
-    user = await $fetch('https://discord.com/api/v10/users/@me', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${discord.token}`
-    },
-    parseResponse: JSON.parse
-  })
 
-  if (user) {
-    pfp = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.webp`
-    console.log(user)
-    discord.loggedIn = true
-    buttonName = 'Dashboard'
-    href = '/dashboard'
-  }
+async function logOut() {
+  let cookie = useCookie('useDiscordStore')
+  cookie.value = null
+  window.location.reload()
 }
 </script>
 
@@ -102,22 +101,22 @@ else if (discord.token) {
       </ul>
     </div>
     <div class="navbar-end">
-      <NuxtLink class="btn" v-if="!discord.token" :to="href">{{buttonName}}</NuxtLink>
+      <NuxtLink class="btn" v-if="!discord.token" :to="runtimeConfig.redirectOauth">Login</NuxtLink>
       <div v-else class="flex justify-center items-center rounded-lg bg-base-100">
         <ClientOnly>
-        <div class="avatar">
-          <div class="w-14 rounded-full">
-          <img v-if="pfp" :src="pfp"/>
-        </div>
-        </div>
-        <div class="dropdown dropdown-hover">
-          <label tabindex="0" class="btn m-1 normal-case">{{user.username}}#{{user.discriminator}}</label>
-          <ul tabindex="0" class="dropdown-content menu p-2 right-2 shadow bg-base-200 rounded-box w-52">
-            <li><a href="/dashboard">Dashboard</a></li>
-            <li><label class="text-red-500">Logout</label></li>
-          </ul>
-        </div>
-      </ClientOnly>
+          <div class="avatar">
+            <div class="w-14 rounded-full">
+              <img :src="discord.pfp" />
+            </div>
+          </div>
+          <div class="dropdown dropdown-hover">
+            <label tabindex="0" class="btn m-1 normal-case">{{ discord.userName }}</label>
+            <ul tabindex="0" class="dropdown-content menu p-2 right-2 shadow bg-base-200 rounded-box w-52">
+              <li><a href="/dashboard">Dashboard</a></li>
+              <li><button class="text-red-500 btn" @click="async () => await logOut()">Logout</button></li>
+            </ul>
+          </div>
+        </ClientOnly>
       </div>
     </div>
   </div>
