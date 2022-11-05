@@ -20,14 +20,16 @@ function getIcon(hash, guildId) {
 </script>
 
 <template>
-  <div class="h-screen flex items-center justify-center flex-col place-content-center">
-    <div v-if="guilds" class="flex items-center justify-center flex-col place-content-center">
-      <label class="text-3xl">Servers the bot is in</label>
+  <div class="h-screen">
+    <div v-if="guilds" class="items-center justify-center place-content-center grid customGrid">
+      <label class="text-3xl content-center text-center">Servers the bot is in:</label>
       <ul class="flex items-center justify-center space-x-5 sm:space-x-10 flex-wrap pl-7 pr-7">
         <li v-for="guild in guilds.filter(x => x.BotJoined)"
           class="hover:scale-150 text-center flex flex-col place-items-center items-center justify-items-center">
           <div class="w-28 mask mask-circle">
-            <img :src="getIcon(guild.Icon, guild.Id)" :alt="guild.Name" />
+            <NuxtLink :to="{ path: 'dashboard/' + guild.Id }">
+              <img :src="getIcon(guild.Icon, guild.Id)" :alt="guild.Name" />
+            </NuxtLink>
           </div>
           <label>{{ guild.Name }}</label>
         </li>
@@ -38,14 +40,18 @@ function getIcon(hash, guildId) {
           <div class="collapse-title text-xl font-medium">
             Show invitable servers
           </div>
-          <div class="collapse-content flex flex-row items-center justify-center">
+          <ul class="collapse-content flex flex-row items-center justify-center">
+            <ul class="flex items-center justify-center space-x-5 sm:space-x-10 flex-wrap pl-7 pr-7"></ul>
             <li v-for="guild in guilds.filter(x => !x.BotJoined)" class="hover:scale-150 text-center flex flex-col">
               <div class="w-28 mask mask-circle">
-                <img :src="getIcon(guild.Icon, guild.Id)" :alt="guild.Name" />
+                <NuxtLink
+                  :to="guild.BotJoined ? { path: 'dashboard/' + guild.Id } : appConfig.botInvite + '&guild_id=' + guild.Id">
+                  <img :src="getIcon(guild.Icon, guild.Id)" :alt="guild.Name" />
+                </NuxtLink>
               </div>
               <label>{{ guild.Name }}</label>
             </li>
-          </div>
+          </ul>
         </div>
       </div>
     </div>
@@ -55,3 +61,9 @@ function getIcon(hash, guildId) {
     <Loading v-else />
   </div>
 </template>
+
+<style>
+.customGrid {
+  grid-template-rows: 100px 200px 200px;
+}
+</style>
