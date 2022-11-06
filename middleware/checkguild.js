@@ -4,14 +4,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const discord = useDiscordStore()
     const appConfig = useAppConfig()
 
-    /*
-    const req = await $fetch(`${appConfig.apiBase}/getguild/${to.query}`, {
-        headers: {
-            "userid": discord.id
-        }
+    const req = await $fetch(`${appConfig.apiBase}/checkguild/${to.params.id}&id=${discord.id}`, {
+        method: 'GET'
     })
-    */
-
-    //console.log(req.data)
-    //console.log(req)
+    
+    if (req != 'True') {
+        return navigateTo('/')
+    }
 })
